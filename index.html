@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>G-Chat IQ Signals</title>
+  <style>
+    :root {
+      --wa-header: #075E54;
+      --wa-teal: #128C7E;
+      --wa-green: #00A884;
+      --wa-bg: #ECE5DD;
+      --wa-input: #FFFFFF;
+      --wa-out: #DCF8C6;
+      --wa-text: #111B21;
+      --wa-subtle: #667781;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #dcdcdc;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--wa-bg);
+      overflow: hidden;
+    }
+
+    .header {
+      background: var(--wa-header);
+      color: #fff;
+      padding: 13px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--wa-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+    }
+
+    .title h1 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .title p {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.85);
+      margin-top: 2px;
+    }
+
+    .chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .bubble {
+      max-width: 88%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      box-shadow: 0 1px 1px rgba(0, 0, 0, 0.08);
+      white-space: pre-wrap;
+      font-size: 14px;
+      line-height: 1.45;
+      color: var(--wa-text);
+    }
+
+    .bubble.in {
+      align-self: flex-start;
+      background: #fff;
+      border-top-left-radius: 2px;
+    }
+    .bubble.out {
+      align-self: flex-end;
+      background: var(--wa-out);
+      border-top-right-radius: 2px;
+    }
+
+    .footer {
+      background: #F0F2F5;
+      padding: 10px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 22px;
+      padding: 12px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: var(--wa-green);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .secondary {
+      background: #ffffff;
+      color: var(--wa-teal);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .note {
+      font-size: 11px;
+      color: var(--wa-subtle);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="avatar">G</div>
+      <div class="title">
+        <h1>G-Chat IQ Signals</h1>
+        <p>online</p>      </div>
+    </div>
+
+    <div class="chat" id="chat"></div>
+
+    <div class="footer">
+      <button class="primary" id="marketBtn">Check Market + Email Me</button>
+      <button class="secondary" id="testBtn">Force Test Email</button>
+      <div class="note">MVP version: crypto market check + Gmail alert.</div>
+    </div>
+  </div>
+
+  <script>
+    const chat = document.getElementById("chat");
+
+    function addMessage(text, type = "in") {
+      const bubble = document.createElement("div");
+      bubble.className = "bubble " + type;
+      bubble.textContent = text;
+      chat.appendChild(bubble);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function checkMarket(force = false) {
+      addMessage("Checking market conditions...", "out");
+
+      try {
+        const url = force ? "/api/market-email?force=true" : "/api/market-email";
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.ok) {
+          addMessage(JSON.stringify(data, null, 2), "in");
+        } else {
+          addMessage(JSON.stringify(data, null, 2), "in");
+        }
+      } catch (error) {
+        addMessage("Error: " + error.message, "in");
+      }
+    }
+
+    document.getElementById("marketBtn").addEventListener("click", function () {
+      checkMarket(false);
+    });
+
+    document.getElementById("testBtn").addEventListener("click", function () {
+      checkMarket(true);
+    });
+
+    window.addEventListener("load", function () {      addMessage("G-Chat IQ Signals MVP ready.\n\nTap 'Check Market + Email Me'.\n\nIf you want to test Gmail only, tap 'Force Test Email'.");
+    });
+  </script>
+</body>
+</html>
