@@ -18,11 +18,28 @@ module.exports = async (req, res) => {
       return res.json({ ok: true, announcements: active });
     }
 
+    if (req.method === "GET" && type === "settings") {
+      const { data } = await store.readJSON("settings.json", { enabled: {} });
+      return res.json({ ok: true, enabled: data.enabled || {} });
+    }
+
     if (req.method === "POST") {
       let body = {};
       try { body = JSON.parse(req.body); } catch (e) { body = req.body || {}; }
       if (body.pass !== process.env.ADMIN_PASS) {
         return res.status(403).json({ ok: false, error: "wrong passcode" });
+      }
+
+      if (body.action === "verify") {
+        return res.json({ ok: true });
+      }
+
+      if (body.action === "toggle") {
+        const { data, sha } = await store.readJSON("settings.json", { enabled: {} });
+        data.enabled = data.enabled || {};
+        data.enabled[body.symbol] = !!body.enabled;
+        await store.writeJSON("settings.json", data, sha);
+        return res.json({ ok: true });
       }
 
       if (body.action === "announce") {
