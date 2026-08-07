@@ -5,331 +5,228 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>G-Chat IQ Signals</title>
 <style>
-:root{
-  --header1:#075E54; --header2:#05473f;
-  --teal:#128C7E; --green:#00A884; --green-dark:#008f72;
-  --bg:#ECE5DD; --card:#fff; --out:#DCF8C6;
-  --text:#111B21; --subtle:#667781; --line:rgba(17,27,33,.08);
-  --red:#E5484D; --amber:#F5A524; --radius:16px;
-  --shadow:0 6px 18px rgba(0,0,0,.08);
-}
+:root{--header1:#075E54;--header2:#05473f;--teal:#128C7E;--green:#00A884;--bg:#ECE5DD;--card:#fff;--out:#DCF8C6;--text:#111B21;--subtle:#667781;--line:rgba(17,27,33,.08);--red:#E5484D;--radius:16px;--shadow:0 6px 18px rgba(0,0,0,.08)}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#cfcbc5;color:var(--text)}
-.app{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;box-shadow:0 0 40px rgba(0,0,0,.25)}
-
-/* HEADER */
-header{background:linear-gradient(135deg,var(--header1),var(--header2));color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px;z-index:5}
-.avatar{width:42px;height:42px;border-radius:50%;background:var(--green);display:grid;place-items:center;font-weight:800;font-size:18px}
-header h1{font-size:17px}
-header p{font-size:12px;opacity:.85}
-
+.app{max-width:480px;margin:0 auto;height:100dvh;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+header{background:linear-gradient(135deg,var(--header1),var(--header2));color:#fff;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--green);display:grid;place-items:center;font-weight:800}
+header h1{font-size:17px}header p{font-size:12px;opacity:.85}
 main{flex:1;position:relative;overflow:hidden}
 .screen{position:absolute;inset:0;display:none;flex-direction:column;overflow:hidden}
 .screen.active{display:flex}
-
-/* CHAT */
-#chat{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:10px;
- background-image:radial-gradient(rgba(7,94,84,.07) 1px,transparent 1px);background-size:18px 18px}
+.banner{margin:10px 12px 0;background:#fff8e1;border:1px solid #f0d896;border-radius:12px;padding:10px 12px;font-size:13px;box-shadow:var(--shadow)}
+#chat{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;background-image:radial-gradient(rgba(7,94,84,.07) 1px,transparent 1px);background-size:18px 18px}
 .bubble{max-width:92%;padding:10px 12px;border-radius:14px;font-size:14px;line-height:1.45;box-shadow:0 1px 1px rgba(0,0,0,.1)}
 .bubble.in{background:#fff;align-self:flex-start;border-top-left-radius:4px}
 .bubble.out{background:var(--out);align-self:flex-end;border-top-right-radius:4px}
-
-/* CARDS */
-.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;align-self:stretch;animation:pop .25s ease}
-@keyframes pop{from{transform:scale(.96);opacity:.4}to{transform:scale(1);opacity:1}}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
 .sig-top{display:flex;align-items:center;gap:8px;font-weight:700}
 .sig-pair{font-size:22px;font-weight:800;margin:6px 0 2px}
 .badge{padding:4px 10px;border-radius:999px;font-size:12px;font-weight:700;color:#fff}
-.badge.buy{background:var(--green)}
-.badge.sell{background:var(--red)}
-.badge.wait{background:#8a949b}
+.badge.buy{background:var(--green)}.badge.sell{background:var(--red)}.badge.wait{background:#8a949b}
 .conf{display:flex;align-items:center;gap:8px;margin:8px 0}
 .conf .bar{flex:1;height:8px;border-radius:99px;background:#e7ecea;overflow:hidden}
-.conf .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),var(--green))}
-.conf span{font-size:12px;font-weight:700;color:var(--teal)}.meta{font-size:13px;color:var(--subtle);margin-top:4px}
+.conf .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--green))}
+.conf span{font-size:12px;font-weight:700;color:var(--teal)}
+.meta{font-size:13px;color:var(--subtle);margin-top:4px}
 .mart{margin-top:8px;font-size:13px;background:#f4faf8;border:1px dashed #bfe3d8;border-radius:10px;padding:8px 10px}
 .src{margin-top:8px;font-size:11px;color:var(--subtle)}
-
-/* ACTIONS */
 .actions{padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#F0F2F5;border-top:1px solid var(--line)}
 .btn{width:100%;border:none;border-radius:999px;padding:13px;font-size:15px;font-weight:700;cursor:pointer}
 .btn.primary{background:var(--green);color:#fff;box-shadow:0 4px 14px rgba(0,168,132,.35)}
-.btn.primary:active{transform:scale(.98)}
 .btn.ghost{background:#fff;color:var(--teal);border:1px solid var(--line);margin-top:8px}
 .btn[disabled]{opacity:.6}
-
-/* CHART */
 .chart-controls{padding:12px;display:flex;flex-direction:column;gap:10px;background:#F0F2F5;border-bottom:1px solid var(--line)}
-select{width:100%;height:46px;border:none;border-radius:12px;padding:0 12px;font-size:15px;background:#fff;color:var(--text);box-shadow:var(--shadow)}
+select{width:100%;height:46px;border:none;border-radius:12px;padding:0 12px;font-size:15px;background:#fff;box-shadow:var(--shadow)}
 .tf-chips{display:flex;gap:8px}
-.chip-btn{flex:1;border:none;border-radius:999px;padding:9px 0;background:#fff;color:var(--subtle);font-weight:700;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.chip-btn{flex:1;border:none;border-radius:999px;padding:9px 0;background:#fff;color:var(--subtle);font-weight:700;font-size:13px}
 .chip-btn.active{background:var(--header1);color:#fff}
 #tvchart{flex:1;min-height:300px;background:#fff}
 .tradingview-widget-container{width:100%;height:100%}
 .tv-note{font-size:11px;color:var(--subtle);text-align:center;padding:6px;background:#fff}
-
-/* MARKET */
 .market-top{padding:12px;display:flex;align-items:center;gap:10px;background:#F0F2F5;border-bottom:1px solid var(--line)}
-.market-top .btn{width:auto;flex:1}
-#marketTime{font-size:11px;color:var(--subtle)}
+.market-top .btn{width:auto;flex:1}#marketTime{font-size:11px;color:var(--subtle)}
 .market-grid{flex:1;overflow-y:auto;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .mcard{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:12px}
-.mcard b{font-size:15px}
 .mrow{display:flex;justify-content:space-between;align-items:center}
 .dot{width:10px;height:10px;border-radius:50%}
-.dot.good{background:var(--green)}
-.dot.wait{background:#c3ccd2}
-.dot.err{background:var(--red)}
+.dot.good{background:var(--green)}.dot.wait{background:#c3ccd2}.dot.err{background:var(--red)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chip{font-size:11px;background:#f1f5f4;border-radius:999px;padding:4px 8px;color:var(--subtle);font-weight:600}
-
-/* SETTINGS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px}
+.stat{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:10px 4px;text-align:center}
+.stat b{display:block;font-size:16px}
+.stat span{font-size:10px;color:var(--subtle)}
+#histList{flex:1;overflow-y:auto;padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+.hitem{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:10px 12px;font-size:13px}
+.hrow{display:flex;justify-content:space-between;align-items:center}
+.st{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700;color:#fff}
+.st.win{background:var(--green)}.st.loss{background:var(--red)}.st.pending{background:#8a949b}
 .settings{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:12px}
 .scard{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:14px}
 .scard h3{font-size:15px;margin-bottom:6px}
 .scard p{font-size:13px;color:var(--subtle);line-height:1.5}
-.rule{display:flex;gap:8px;margin-top:6px;font-size:13px}
-
-/* NAV */
+input,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px;margin-top:8px;font-family:inherit}
 nav{display:flex;background:#F0F2F5;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;border:none;background:none;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;color:var(--subtle);cursor:pointer}
-nav button .ico{font-size:20px}
+nav button{flex:1;border:none;background:none;padding:10px 0 8px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:var(--subtle)}
+nav button .ico{font-size:19px}
 nav button.active{color:var(--header1);font-weight:700}
-</style></head>
+</style>
+</head>
 <body>
 <div class="app">
-  <header>
-    <div class="avatar">G</div>
-    <div><h1>G-Chat IQ Signals</h1><p>online • market engine v2</p></div>
-  </header>
+<header><div class="avatar">G</div><div><h1>G-Chat IQ Signals</h1><p>online • engine v3</p></div></header>
+<main>
+  <section class="screen active" id="tab-signals">
+    <div class="banner" id="announceBar" style="display:none"></div>
+    <div id="chat"></div>
+    <div class="actions"><button class="btn primary" id="btnCheck">🔔 Check Market + Email Me</button></div>
+  </section>
 
-  <main>
-    <!-- SIGNALS -->
-    <section class="screen active" id="tab-signals">
-      <div id="chat"></div>
-      <div class="actions">
-        <button class="btn primary" id="btnCheck">🔔 Check Market + Email Me</button>
+  <section class="screen" id="tab-chart">
+    <div class="chart-controls">
+      <select id="pairSelect">
+        <optgroup label="Crypto">
+          <option value="BINANCE:BTCUSDT">BTC/USD</option><option value="BINANCE:BNBUSDT">BNB/USD</option>
+          <option value="BINANCE:ETHUSDT">ETH/USD</option><option value="BINANCE:SOLUSDT">SOL/USD</option>
+          <option value="BINANCE:XRPUSDT">XRP/USD</option>
+        </optgroup>
+        <optgroup label="Forex">
+          <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option>
+          <option value="FX:USDJPY">USD/JPY</option><option value="FX:AUDUSD">AUD/USD</option>
+          <option value="FX:USDCHF">USD/CHF</option>        </optgroup>
+      </select>
+      <div class="tf-chips">
+        <button class="chip-btn" data-interval="1">1m</button>
+        <button class="chip-btn active" data-interval="5">5m</button>
+        <button class="chip-btn" data-interval="15">15m</button>
+        <button class="chip-btn" data-interval="60">1h</button>
       </div>
-    </section>
+    </div>
+    <div id="tvchart"></div><div class="tv-note">Live charts by TradingView</div>
+  </section>
 
-    <!-- CHART -->
-    <section class="screen" id="tab-chart">
-      <div class="chart-controls">
-        <select id="pairSelect">
-          <optgroup label="Crypto">
-            <option value="BINANCE:BTCUSDT">BTC/USD</option>
-            <option value="BINANCE:BNBUSDT">BNB/USD</option>
-            <option value="BINANCE:ETHUSDT">ETH/USD</option>
-            <option value="BINANCE:SOLUSDT">SOL/USD</option>
-            <option value="BINANCE:XRPUSDT">XRP/USD</option>
-          </optgroup>
-          <optgroup label="Forex">
-            <option value="FX:EURUSD">EUR/USD</option>
-            <option value="FX:GBPUSD">GBP/USD</option>
-            <option value="FX:USDJPY">USD/JPY</option>
-            <option value="FX:AUDUSD">AUD/USD</option>
-            <option value="FX:USDCHF">USD/CHF</option>
-          </optgroup>
-        </select>
-        <div class="tf-chips">
-          <button class="chip-btn" data-interval="1">1m</button>
-          <button class="chip-btn active" data-interval="5">5m</button>
-          <button class="chip-btn" data-interval="15">15m</button>
-          <button class="chip-btn" data-interval="60">1h</button>
-        </div>
+  <section class="screen" id="tab-market">
+    <div class="market-top"><button class="btn primary" id="btnRefresh">🔄 Refresh Market Scan</button><span id="marketTime"></span></div>
+    <div class="market-grid" id="marketGrid"></div>
+  </section>
+
+  <section class="screen" id="tab-history">
+    <div class="stats-row">
+      <div class="stat"><b id="stWin">0%</b><span>WIN RATE</span></div>
+      <div class="stat"><b id="stW">0</b><span>WINS</span></div>
+      <div class="stat"><b id="stL">0</b><span>LOSSES</span></div>
+      <div class="stat"><b id="stP">0</b><span>PENDING</span></div>
+    </div>
+    <div id="histList"></div>
+  </section>
+
+  <section class="screen" id="tab-settings">
+    <div class="settings">
+      <div class="scard"><h3>🧪 Gmail Test</h3><button class="btn ghost" id="btnTest" style="margin-top:0">Send Test Email</button></div>
+      <div class="scard"><h3>📣 Admin Dashboard</h3>
+        <input id="adminPass" type="password" placeholder="Admin passcode"/>
+        <textarea id="adminText" rows="3" placeholder="Write announcement for homepage…"></textarea>
+        <button class="btn primary" id="btnAnnounce" style="margin-top:8px">Publish Announcement</button>
+        <button class="btn ghost" id="btnClearAnn">Clear Announcement</button>
       </div>
-      <div id="tvchart"></div>
-      <div class="tv-note">Live charts by TradingView</div>
-    </section>
-
-    <!-- MARKET -->
-    <section class="screen" id="tab-market">
-      <div class="market-top">        <button class="btn primary" id="btnRefresh">🔄 Refresh Market Scan</button>
-        <span id="marketTime"></span>
-      </div>
-      <div class="market-grid" id="marketGrid"></div>
-    </section>
-
-    <!-- SETTINGS -->
-    <section class="screen" id="tab-settings">
-      <div class="settings">
-        <div class="scard">
-          <h3>🧪 Gmail Test</h3>
-          <button class="btn ghost" id="btnTest" style="margin-top:0">Send Test Email</button>
-        </div>
-        <div class="scard">
-          <h3>🛡️ Risk Rules</h3>
-          <div class="rule">✅ Risk only 0.25%–0.5% per trade.</div>
-          <div class="rule">✅ Max 3 martingale levels. Never unlimited.</div>
-          <div class="rule">✅ Stop trading after 3 losing sequences.</div>
-          <div class="rule">✅ No trading during major news.</div>
-        </div>
-        <div class="scard">
-          <h3>🎓 How The Engine Thinks</h3>
-          <p>It checks trend (EMA 9/21/50), momentum (RSI), volatility (ATR) and volume on the 5-minute chart. A signal is only “GOOD” when several factors agree. If the market is choppy, it stays silent — silence is also a signal.</p>
-        </div>
-        <div class="scard">
-          <h3>⚠️ Disclaimer</h3>
-          <p>Educational project. Not financial advice. Binary options and crypto trading are high risk. No system wins all the time.</p>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <nav>
-    <button data-tab="signals" class="active"><span class="ico">💬</span>Signals</button>
-    <button data-tab="chart"><span class="ico">📈</span>Chart</button>
-    <button data-tab="market"><span class="ico">🌍</span>Market</button>
-    <button data-tab="settings"><span class="ico">⚙️</span>Settings</button>
-  </nav>
+      <div class="scard"><h3>🛡️ Risk Rules</h3><p>✅ 0.25–0.5% risk per trade. ✅ Max 3 martingale levels. ✅ Stop after 3 losing sequences. ✅ No news trading.</p></div>
+      <div class="scard"><h3>⚠️ Disclaimer</h3><p>Educational project. Not financial advice. Trading is high risk.</p></div>
+    </div>
+  </section>
+</main>
+<nav>
+  <button data-tab="signals" class="active"><span class="ico">💬</span>Signals</button>
+  <button data-tab="chart"><span class="ico">📈</span>Chart</button>
+  <button data-tab="market"><span class="ico">🌍</span>Market</button>
+  <button data-tab="history"><span class="ico">📜</span>History</button>
+  <button data-tab="settings"><span class="ico">⚙️</span>Admin</button>
+</nav>
 </div>
+<script>const $=s=>document.querySelector(s);const chat=$("#chat");
+const fmtT=d=>d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+const fmtDT=iso=>new Date(iso).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+function bubble(t,c){const b=document.createElement("div");b.className="bubble "+c;b.textContent=t;chat.appendChild(b);chat.scrollTop=chat.scrollHeight}
+function card(h){const c=document.createElement("div");c.className="card";c.innerHTML=h;chat.appendChild(c);chat.scrollTop=chat.scrollHeight}
+const confBar=v=>`<div class="conf"><div class="bar"><i style="width:${v}%"></i></div><span>${v}%</span></div>`;
+const dirB=d=>d==="BUY"?`<span class="badge buy">🟢 BUY</span>`:d==="SELL"?`<span class="badge sell">🔴 SELL</span>`:`<span class="badge wait">⚪ WAIT</span>`;
+function signalCard(a){const e=new Date(a.entryTime||Date.now());
+ return `<div class="sig-top">🚨 TRADE NOW ${dirB(a.direction)}</div><div class="sig-pair">📊 ${a.symbol}</div>${confBar(a.confidence)}
+ <div class="meta">⏱ 5-min expiry • 🕰 Entry: ${fmtT(e)}</div>
+ <div class="mart">📊 Martingale<br>• L1 → ${fmtT(new Date(e.getTime()+300000))}<br>• L2 → ${fmtT(new Date(e.getTime()+600000))}<br>• L3 → ${fmtT(new Date(e.getTime()+900000))}</div>
+ <div class="src">🤖 ${a.source||"feed"}</div>`}
+function noSignalCard(assets){const chips=(assets||[]).map(a=>`<span class="chip">${a.symbol.split("/")[0]} ${a.direction==="BUY"?"🟢":a.direction==="SELL"?"🔴":""} ${a.confidence}%</span>`).join("");
+ return `<div class="sig-top">😴 No high-quality setup right now</div><p class="meta" style="margin-top:6px">Engine scanned — conditions not clean. Silence protects your account.</p><div class="chips" style="margin-top:10px">${chips}</div>`}
 
-<script>
-const $ = s => document.querySelector(s);
-const chat = $("#chat");
+/* tabs */
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
+ document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ b.classList.add("active");$("#tab-"+b.dataset.tab).classList.add("active");
+ if(b.dataset.tab==="market")loadMarket();
+ if(b.dataset.tab==="history")loadHistory();
+ if(b.dataset.tab==="signals")loadAnnouncement();
+}));
 
-/* ---------- helpers ---------- */
-function fmtTime(d){ return d.toLocaleTimeString([], {hour:"numeric", minute:"2-digit"}); }
-function nextMinute(){ const d = new Date(); d.setSeconds(0,0); d.setMinutes(d.getMinutes()+1); return d; }
-function bubble(text, type){ const b = document.createElement("div"); b.className = "bubble " + type; b.textContent = text; chat.appendChild(b); chat.scrollTop = chat.scrollHeight; }
-function card(html){ const c = document.createElement("div"); c.className = "card"; c.innerHTML = html; chat.appendChild(c); chat.scrollTop = chat.scrollHeight; }
-function confBar(v){ return `<div class="conf"><div class="bar"><i style="width:${v}%"></i></div><span>${v}%</span></div>`; }
-function dirBadge(d){
-  if (d === "BUY")  return `<span class="badge buy">🟢 BUY</span>`;
-  if (d === "SELL") return `<span class="badge sell">🔴 SELL</span>`;
-  return `<span class="badge wait">⚪ WAIT</span>`;
-}
+/* chart */
+let curInt="5";
+function loadChart(){const sym=$("#pairSelect").value;const box=$("#tvchart");box.innerHTML="";
+ const w=document.createElement("div");w.className="tradingview-widget-container";
+ const i=document.createElement("div");i.className="tradingview-widget-container__widget";w.appendChild(i);
+ const s=document.createElement("script");s.type="text/javascript";s.async=true;
+ s.src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+ s.innerHTML=JSON.stringify({autosize:true,symbol:sym,interval:curInt,timezone:"Etc/UTC",theme:"light",style:"1",locale:"en",allow_symbol_change:false,calendar:false,support_host:"https://www.tradingview.com"});
+ w.appendChild(s);box.appendChild(w)}
+$("#pairSelect").addEventListener("change",loadChart);
+document.querySelectorAll(".chip-btn").forEach(b=>b.addEventListener("click",()=>{
+ document.querySelectorAll(".chip-btn").forEach(x=>x.classList.remove("active"));
+ b.classList.add("active");curInt=b.dataset.interval;loadChart()}));
 
-function signalCard(a){
-  const entry = nextMinute();
-  const L1 = new Date(entry.getTime() + 5*60000);
-  const L2 = new Date(entry.getTime() + 10*60000);
-  const L3 = new Date(entry.getTime() + 15*60000);
-  return `
-    <div class="sig-top">🚨 TRADE NOW ${dirBadge(a.direction)}</div>
-    <div class="sig-pair">📊 ${a.symbol}</div>
-    ${confBar(a.confidence)}
-    <div class="meta">⏱ Timeframe: 5-min expiry  •  🕰 Entry: ${fmtTime(entry)}</div>
-    <div class="mart">📊 Martingale Levels<br>• Level 1 → ${fmtTime(L1)}<br>• Level 2 → ${fmtTime(L2)}<br>• Level 3 → ${fmtTime(L3)}</div>
-    <div class="src">🤖 Engine: ${a.source || "market feed"} • 5m trend/momentum/volatility</div>`;
-}
+/* signals button */
+$("#btnCheck").addEventListener("click",async()=>{const btn=$("#btnCheck");btn.disabled=true;btn.textContent=" Scanning…";
+ bubble("Scanning BTC, BNB, ETH, SOL, XRP…","out");
+ try{const r=await fetch("/api/market-email");const d=await r.json();
+  if(d.emailed&&d.goodAssets&&d.goodAssets.length){d.goodAssets.forEach(a=>card(signalCard(a)));bubble("✅ Signal recorded + email sent.")}
+  else{card(noSignalCard(d.assets));bubble("No email — market not clean yet.")}
+ }catch(e){bubble("Error: "+e.message,"in")}
+ btn.disabled=false;btn.textContent="🔔 Check Market + Email Me"});
 
-function noSignalCard(assets){
-  const chips = (assets || []).map(a =>
-    `<span class="chip">${a.symbol.split("/")[0]} ${a.direction === "BUY" ? "🟢" : a.direction === "SELL" ? "🔴" : "⚪"} ${a.confidence}%</span>`
-  ).join("");
-  return `
-    <div class="sig-top">😴 No high-quality setup right now</div>
-    <p class="meta" style="margin-top:6px">The engine scanned the market but conditions are not clean enough. Protecting your account is also a trade.</p>
-    <div class="chips" style="margin-top:10px">${chips}</div>
-    <div class="src">Tip: open the 📈 Chart tab and study the pairs while you wait.</div>`;
-}
+/* market */
+async function loadMarket(){$("#marketGrid").innerHTML=`<div class="mcard">Scanning…</div>`; try{const r=await fetch("/api/market-email?check=true");const d=await r.json();$("#marketTime").textContent=fmtT(new Date());
+ $("#marketGrid").innerHTML=(d.assets||[]).map(a=>`<div class="mcard"><div class="mrow"><b>${a.symbol}</b><span class="dot ${a.error?"err":a.good?"good":"wait"}"></span></div><div class="chips">${dirB(a.direction)}<span class="chip">RSI ${a.rsi??"-"}</span><span class="chip">ATR ${a.atrPct??"-"}%</span></div>${confBar(a.confidence||0)}<div class="src">${a.source?"Feed: "+a.source:a.error||""}</div></div>`).join("")}
+ catch(e){$("#marketGrid").innerHTML=`<div class="mcard">Error: ${e.message}</div>`}}
+$("#btnRefresh").addEventListener("click",loadMarket);
 
-/* ---------- tabs ---------- */
-document.querySelectorAll("nav button").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    btn.classList.add("active");
-    $("#tab-" + btn.dataset.tab).classList.add("active");
-    if (btn.dataset.tab === "market") loadMarket();
-  });
-});
+/* history */
+async function loadHistory(){try{const r=await fetch("/api/data?type=history");const d=await r.json();
+ const s=d.stats||{};$("#stWin").textContent=(s.winRate||0)+"%";$("#stW").textContent=s.wins||0;$("#stL").textContent=s.losses||0;$("#stP").textContent=s.pending||0;
+ $("#histList").innerHTML=(d.signals||[]).map(x=>`<div class="hitem"><div class="hrow"><b>${x.symbol}</b><span class="st ${x.status}">${x.status.toUpperCase()}</span></div>
+ <div class="chips">${dirB(x.direction)}<span class="chip">Conf ${x.confidence}%</span></div>
+ <div class="meta">🕰 Given/Entry: ${fmtDT(x.entryTime)} → ⌛ Expiry: ${fmtDT(x.expiryTime)}</div>
+ <div class="meta">💵 Entry: ${x.entryPrice??"-"} → 🏁 Expiry: ${x.expiryPrice??"-"}</div></div>`).join("")||`<div class="hitem">No signals recorded yet.</div>`}
+ catch(e){$("#histList").innerHTML=`<div class="hitem">Error: ${e.message}</div>`}}
 
-/* ---------- chart ---------- */
-let currentInterval = "5";
-function loadChart(){
-  const symbol = $("#pairSelect").value;
-  const box = $("#tvchart");
-  box.innerHTML = "";
-  const wrap = document.createElement("div");  wrap.className = "tradingview-widget-container";
-  const inner = document.createElement("div");
-  inner.className = "tradingview-widget-container__widget";
-  wrap.appendChild(inner);
-  const script = document.createElement("script");
-  script.type = "text/javascript";
-  script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-  script.async = true;
-  script.innerHTML = JSON.stringify({
-    autosize: true, symbol, interval: currentInterval,
-    timezone: "Etc/UTC", theme: "light", style: "1", locale: "en",
-    hide_top_toolbar: false, allow_symbol_change: false, calendar: false,
-    support_host: "https://www.tradingview.com"
-  });
-  wrap.appendChild(script);
-  box.appendChild(wrap);
-}
-$("#pairSelect").addEventListener("change", loadChart);
-document.querySelectorAll(".chip-btn").forEach(b => {
-  b.addEventListener("click", () => {
-    document.querySelectorAll(".chip-btn").forEach(x => x.classList.remove("active"));
-    b.classList.add("active");
-    currentInterval = b.dataset.interval;
-    loadChart();
-  });
-});
+/* announcement */
+async function loadAnnouncement(){try{const r=await fetch("/api/data?type=announcements");const d=await r.json();
+ const a=(d.announcements||[])[0];const bar=$("#announceBar");
+ if(a){bar.style.display="block";bar.innerHTML=`📣 <b>Announcement:</b> ${a.text}`}else bar.style.display="none"}catch(e){}}
 
-/* ---------- signals ---------- */
-$("#btnCheck").addEventListener("click", async () => {
-  const btn = $("#btnCheck");
-  btn.disabled = true; btn.textContent = "⏳ Scanning market…";
-  bubble("Scanning BTC, BNB, ETH, SOL, XRP…", "out");
-  try {
-    const res = await fetch("/api/market-email");
-    const data = await res.json();
-    if (data.emailed && data.goodAssets && data.goodAssets.length) {
-      data.goodAssets.forEach(a => card(signalCard(a)));
-      bubble("✅ Signal email sent. Check your Gmail inbox/spam.");
-    } else {
-      card(noSignalCard(data.assets));
-      bubble("No email sent yet — market not clean enough.");
-    }
-  } catch (e) {
-    bubble("Error: " + e.message, "in");
-  }
-  btn.disabled = false; btn.textContent = "🔔 Check Market + Email Me";
-});
+/* admin */
+$("#btnAnnounce").addEventListener("click",async()=>{try{
+ const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"announce",pass:$("#adminPass").value,text:$("#adminText").value})});
+ const d=await r.json();alert(d.ok?"✅ Announcement published!":"❌ "+(d.error||"failed"));if(d.ok)$("#adminText").value=""}catch(e){alert("Error: "+e.message)}});
+$("#btnClearAnn").addEventListener("click",async()=>{try{
+ const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"clear",pass:$("#adminPass").value})});
+ const d=await r.json();alert(d.ok?"✅ Cleared":"❌ "+(d.error||"failed"))}catch(e){alert("Error: "+e.message)}});
 
-/* ---------- market scan ---------- */
-async function loadMarket(){  $("#marketGrid").innerHTML = `<div class="mcard">Scanning…</div>`;
-  try {
-    const res = await fetch("/api/market-email?check=true");
-    const data = await res.json();
-    $("#marketTime").textContent = fmtTime(new Date());
-    $("#marketGrid").innerHTML = (data.assets || []).map(a => `
-      <div class="mcard">
-        <div class="mrow"><b>${a.symbol}</b>
-          <span class="dot ${a.error ? "err" : a.good ? "good" : "wait"}"></span></div>
-        <div class="chips">
-          ${dirBadge(a.direction)}
-          <span class="chip">RSI ${a.rsi ?? "-"}</span>
-          <span class="chip">ATR ${a.atrPct ?? "-"}%</span>
-        </div>
-        ${confBar(a.confidence || 0)}
-        <div class="src">${a.source ? "Feed: " + a.source : a.error || ""}</div>
-      </div>`).join("");
-  } catch (e) {
-    $("#marketGrid").innerHTML = `<div class="mcard">Error: ${e.message}</div>`;
-  }
-}
-$("#btnRefresh").addEventListener("click", loadMarket);
+/* test email */
+$("#btnTest").addEventListener("click",async()=>{try{const r=await fetch("/api/market-email?force=true");const d=await r.json();
+ alert(d.ok?"✅ Test email sent":"❌ "+(d.error||d.message))}catch(e){alert("Error: "+e.message)}});
 
-/* ---------- test email ---------- */
-$("#btnTest").addEventListener("click", async () => {
-  const btn = $("#btnTest");
-  btn.textContent = "Sending…";
-  try {
-    const res = await fetch("/api/market-email?force=true");
-    const data = await res.json();
-    alert(data.ok ? "✅ Test email sent. Check Gmail." : "❌ " + (data.error || data.message));
-  } catch (e) { alert("Error: " + e.message); }
-  btn.textContent = "Send Test Email";
-});
-
-/* ---------- start ---------- */
-bubble("Welcome to G-Chat IQ Signals v2 🎉\n\n💬 Signals — scan + Gmail alerts\n📈 Chart — live candles for all pairs\n🌍 Market — live engine status\n⚙️ Settings — test email + risk rules");
-loadChart();
+loadChart();loadAnnouncement();
+bubble("Welcome to G-Chat v3 🎉\n\n💬 Signals • 📈 Charts • 🌍 Market\n📜 History — auto win/loss tracking\n⚙️ Admin — announcements");
 </script>
 </body>
 </html>
