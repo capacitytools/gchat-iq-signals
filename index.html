@@ -48,13 +48,21 @@ select{width:100%;height:46px;border:none;border-radius:12px;padding:0 12px;font
 .tv-note{font-size:11px;color:var(--subtle);text-align:center;padding:6px;background:#fff}
 .market-top{padding:12px;display:flex;align-items:center;gap:10px;background:#F0F2F5;border-bottom:1px solid var(--line)}
 .market-top .btn{width:auto;flex:1}#marketTime{font-size:11px;color:var(--subtle)}
-.market-grid{flex:1;overflow-y:auto;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mcard{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:12px}
+.market-list{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.mrow-card{background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:12px;display:flex;align-items:center;gap:12px}
+.mrow-card.off{opacity:.55}
+.minfo{flex:1;min-width:0}
 .mrow{display:flex;justify-content:space-between;align-items:center}
 .dot{width:10px;height:10px;border-radius:50%}
 .dot.good{background:var(--green)}.dot.wait{background:#c3ccd2}.dot.err{background:var(--red)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .chip{font-size:11px;background:#f1f5f4;border-radius:999px;padding:4px 8px;color:var(--subtle);font-weight:600}
+.switch{position:relative;width:46px;height:27px;flex:0 0 auto}
+.switch input{display:none}
+.slider{position:absolute;inset:0;background:#cfd8dc;border-radius:999px;transition:.2s}
+.slider:before{content:"";position:absolute;width:21px;height:21px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.switch input:checked + .slider{background:var(--green)}
+.switch input:checked + .slider:before{transform:translateX(19px)}
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px}
 .stat{background:#fff;border-radius:12px;box-shadow:var(--shadow);padding:10px 4px;text-align:center}
 .stat b{display:block;font-size:16px}
@@ -77,7 +85,7 @@ nav button.active{color:var(--header1);font-weight:700}
 </head>
 <body>
 <div class="app">
-<header><div class="avatar">G</div><div><h1>G-Chat IQ Signals</h1><p>online • engine v3</p></div></header>
+<header><div class="avatar">G</div><div><h1>G-Chat IQ Signals</h1><p>online • engine v4</p></div></header>
 <main>
   <section class="screen active" id="tab-signals">
     <div class="banner" id="announceBar" style="display:none"></div>
@@ -88,15 +96,15 @@ nav button.active{color:var(--header1);font-weight:700}
   <section class="screen" id="tab-chart">
     <div class="chart-controls">
       <select id="pairSelect">
-        <optgroup label="Crypto">
-          <option value="BINANCE:BTCUSDT">BTC/USD</option><option value="BINANCE:BNBUSDT">BNB/USD</option>
+        <optgroup label="Crypto">          <option value="BINANCE:BTCUSDT">BTC/USD</option><option value="BINANCE:BNBUSDT">BNB/USD</option>
           <option value="BINANCE:ETHUSDT">ETH/USD</option><option value="BINANCE:SOLUSDT">SOL/USD</option>
           <option value="BINANCE:XRPUSDT">XRP/USD</option>
         </optgroup>
         <optgroup label="Forex">
           <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option>
           <option value="FX:USDJPY">USD/JPY</option><option value="FX:AUDUSD">AUD/USD</option>
-          <option value="FX:USDCHF">USD/CHF</option>        </optgroup>
+          <option value="FX:USDCHF">USD/CHF</option>
+        </optgroup>
       </select>
       <div class="tf-chips">
         <button class="chip-btn" data-interval="1">1m</button>
@@ -109,8 +117,8 @@ nav button.active{color:var(--header1);font-weight:700}
   </section>
 
   <section class="screen" id="tab-market">
-    <div class="market-top"><button class="btn primary" id="btnRefresh">🔄 Refresh Market Scan</button><span id="marketTime"></span></div>
-    <div class="market-grid" id="marketGrid"></div>
+    <div class="market-top"><button class="btn primary" id="btnRefresh">🔄 Refresh</button><span id="marketTime"></span></div>
+    <div class="market-list" id="marketList"></div>
   </section>
 
   <section class="screen" id="tab-history">
@@ -125,16 +133,19 @@ nav button.active{color:var(--header1);font-weight:700}
 
   <section class="screen" id="tab-settings">
     <div class="settings">
-      <div class="scard"><h3>🧪 Gmail Test</h3><button class="btn ghost" id="btnTest" style="margin-top:0">Send Test Email</button></div>
-      <div class="scard"><h3>📣 Admin Dashboard</h3>
+      <div class="scard"><h3>🔐 Admin Unlock</h3>
         <input id="adminPass" type="password" placeholder="Admin passcode"/>
+        <button class="btn primary" id="btnUnlock" style="margin-top:8px">Unlock This Phone</button>
+        <p style="margin-top:6px">Unlock once to control pair switches & announcements.</p>
+      </div>
+      <div class="scard"><h3>🧪 Gmail Test</h3><button class="btn ghost" id="btnTest" style="margin-top:0">Send Test Email</button></div>
+      <div class="scard"><h3>📣 Announcement</h3>
         <textarea id="adminText" rows="3" placeholder="Write announcement for homepage…"></textarea>
-        <button class="btn primary" id="btnAnnounce" style="margin-top:8px">Publish Announcement</button>
-        <button class="btn ghost" id="btnClearAnn">Clear Announcement</button>
+        <button class="btn primary" id="btnAnnounce" style="margin-top:8px">Publish</button>
+        <button class="btn ghost" id="btnClearAnn">Clear</button>
       </div>
       <div class="scard"><h3>🛡️ Risk Rules</h3><p>✅ 0.25–0.5% risk per trade. ✅ Max 3 martingale levels. ✅ Stop after 3 losing sequences. ✅ No news trading.</p></div>
-      <div class="scard"><h3>⚠️ Disclaimer</h3><p>Educational project. Not financial advice. Trading is high risk.</p></div>
-    </div>
+      <div class="scard"><h3>⚠️ Disclaimer</h3><p>Educational project. Not financial advice. Trading is high risk.</p></div>    </div>
   </section>
 </main>
 <nav>
@@ -145,7 +156,9 @@ nav button.active{color:var(--header1);font-weight:700}
   <button data-tab="settings"><span class="ico">⚙️</span>Admin</button>
 </nav>
 </div>
-<script>const $=s=>document.querySelector(s);const chat=$("#chat");
+<script>
+const $=s=>document.querySelector(s);const chat=$("#chat");
+let adminPass=localStorage.getItem("gchat_admin_pass")||"";
 const fmtT=d=>d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 const fmtDT=iso=>new Date(iso).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
 function bubble(t,c){const b=document.createElement("div");b.className="bubble "+c;b.textContent=t;chat.appendChild(b);chat.scrollTop=chat.scrollHeight}
@@ -160,7 +173,6 @@ function signalCard(a){const e=new Date(a.entryTime||Date.now());
 function noSignalCard(assets){const chips=(assets||[]).map(a=>`<span class="chip">${a.symbol.split("/")[0]} ${a.direction==="BUY"?"🟢":a.direction==="SELL"?"🔴":""} ${a.confidence}%</span>`).join("");
  return `<div class="sig-top">😴 No high-quality setup right now</div><p class="meta" style="margin-top:6px">Engine scanned — conditions not clean. Silence protects your account.</p><div class="chips" style="margin-top:10px">${chips}</div>`}
 
-/* tabs */
 document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -170,7 +182,6 @@ document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()
  if(b.dataset.tab==="signals")loadAnnouncement();
 }));
 
-/* chart */
 let curInt="5";
 function loadChart(){const sym=$("#pairSelect").value;const box=$("#tvchart");box.innerHTML="";
  const w=document.createElement("div");w.className="tradingview-widget-container";
@@ -183,50 +194,81 @@ $("#pairSelect").addEventListener("change",loadChart);
 document.querySelectorAll(".chip-btn").forEach(b=>b.addEventListener("click",()=>{
  document.querySelectorAll(".chip-btn").forEach(x=>x.classList.remove("active"));
  b.classList.add("active");curInt=b.dataset.interval;loadChart()}));
-
-/* signals button */
-$("#btnCheck").addEventListener("click",async()=>{const btn=$("#btnCheck");btn.disabled=true;btn.textContent=" Scanning…";
- bubble("Scanning BTC, BNB, ETH, SOL, XRP…","out");
+$("#btnCheck").addEventListener("click",async()=>{const btn=$("#btnCheck");btn.disabled=true;btn.textContent="⏳ Scanning…";
+ bubble("Scanning all enabled pairs…","out");
  try{const r=await fetch("/api/market-email");const d=await r.json();
   if(d.emailed&&d.goodAssets&&d.goodAssets.length){d.goodAssets.forEach(a=>card(signalCard(a)));bubble("✅ Signal recorded + email sent.")}
   else{card(noSignalCard(d.assets));bubble("No email — market not clean yet.")}
  }catch(e){bubble("Error: "+e.message,"in")}
  btn.disabled=false;btn.textContent="🔔 Check Market + Email Me"});
 
-/* market */
-async function loadMarket(){$("#marketGrid").innerHTML=`<div class="mcard">Scanning…</div>`; try{const r=await fetch("/api/market-email?check=true");const d=await r.json();$("#marketTime").textContent=fmtT(new Date());
- $("#marketGrid").innerHTML=(d.assets||[]).map(a=>`<div class="mcard"><div class="mrow"><b>${a.symbol}</b><span class="dot ${a.error?"err":a.good?"good":"wait"}"></span></div><div class="chips">${dirB(a.direction)}<span class="chip">RSI ${a.rsi??"-"}</span><span class="chip">ATR ${a.atrPct??"-"}%</span></div>${confBar(a.confidence||0)}<div class="src">${a.source?"Feed: "+a.source:a.error||""}</div></div>`).join("")}
- catch(e){$("#marketGrid").innerHTML=`<div class="mcard">Error: ${e.message}</div>`}}
+/* ---- MARKET LIST WITH SWITCHES ---- */
+async function loadMarket(){$("#marketList").innerHTML=`<div class="mrow-card">Scanning…</div>`;
+ try{
+  const [sr, mr] = await Promise.all([fetch("/api/data?type=settings"), fetch("/api/market-email?check=true")]);
+  const sd = await sr.json(); const md = await mr.json();
+  const enabled = sd.enabled || {};
+  $("#marketTime").textContent=fmtT(new Date());
+  $("#marketList").innerHTML=(md.assets||[]).map(a=>{
+    const on = enabled[a.symbol] !== false;
+    return `<div class="mrow-card ${on?"":"off"}" data-sym="${a.symbol}">
+      <label class="switch"><input type="checkbox" data-sym="${a.symbol}" ${on?"checked":""}><span class="slider"></span></label>
+      <div class="minfo">
+        <div class="mrow"><b>${a.symbol}</b><span class="dot ${a.error?"err":a.good?"good":"wait"}"></span></div>
+        <div class="chips">${dirB(a.direction)}<span class="chip">Conf ${a.confidence||0}%</span><span class="chip">RSI ${a.rsi??"-"}</span><span class="chip">${a.source||"feed"}</span></div>
+      </div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("#marketList input[type=checkbox]").forEach(cb=>{
+    cb.addEventListener("change", async ()=>{
+      const sym=cb.dataset.sym; const want=cb.checked;
+      if(!adminPass){ cb.checked=!want; alert("🔒 Unlock first: Admin tab → enter passcode → Unlock This Phone."); return; }
+      try{
+        const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"toggle",pass:adminPass,symbol:sym,enabled:want})});
+        const d=await r.json();
+        if(!d.ok){ cb.checked=!want; alert("❌ "+(d.error||"failed")); return; }
+        cb.closest(".mrow-card").classList.toggle("off",!want);
+      }catch(e){ cb.checked=!want; alert("Error: "+e.message); }
+    });
+  });
+ }catch(e){$("#marketList").innerHTML=`<div class="mrow-card">Error: ${e.message}</div>`}}
 $("#btnRefresh").addEventListener("click",loadMarket);
 
-/* history */
 async function loadHistory(){try{const r=await fetch("/api/data?type=history");const d=await r.json();
  const s=d.stats||{};$("#stWin").textContent=(s.winRate||0)+"%";$("#stW").textContent=s.wins||0;$("#stL").textContent=s.losses||0;$("#stP").textContent=s.pending||0;
  $("#histList").innerHTML=(d.signals||[]).map(x=>`<div class="hitem"><div class="hrow"><b>${x.symbol}</b><span class="st ${x.status}">${x.status.toUpperCase()}</span></div>
  <div class="chips">${dirB(x.direction)}<span class="chip">Conf ${x.confidence}%</span></div>
- <div class="meta">🕰 Given/Entry: ${fmtDT(x.entryTime)} → ⌛ Expiry: ${fmtDT(x.expiryTime)}</div>
+ <div class="meta">🕰 Entry: ${fmtDT(x.entryTime)} → ⌛ Expiry: ${fmtDT(x.expiryTime)}</div>
  <div class="meta">💵 Entry: ${x.entryPrice??"-"} → 🏁 Expiry: ${x.expiryPrice??"-"}</div></div>`).join("")||`<div class="hitem">No signals recorded yet.</div>`}
  catch(e){$("#histList").innerHTML=`<div class="hitem">Error: ${e.message}</div>`}}
 
-/* announcement */
 async function loadAnnouncement(){try{const r=await fetch("/api/data?type=announcements");const d=await r.json();
- const a=(d.announcements||[])[0];const bar=$("#announceBar");
- if(a){bar.style.display="block";bar.innerHTML=`📣 <b>Announcement:</b> ${a.text}`}else bar.style.display="none"}catch(e){}}
+ const a=(d.announcements||[])[0];const bar=$("#announceBar"); if(a){bar.style.display="block";bar.innerHTML=`📣 <b>Announcement:</b> ${a.text}`}else bar.style.display="none"}catch(e){}}
 
-/* admin */
+$("#btnUnlock").addEventListener("click",async()=>{try{
+ const pass=$("#adminPass").value;
+ const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"verify",pass})});
+ const d=await r.json();
+ if(d.ok){ adminPass=pass; localStorage.setItem("gchat_admin_pass",pass); alert("✅ Phone unlocked. You can now flip pair switches & post announcements."); }
+ else alert("❌ Wrong passcode");
+}catch(e){alert("Error: "+e.message)}});
+
 $("#btnAnnounce").addEventListener("click",async()=>{try{
- const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"announce",pass:$("#adminPass").value,text:$("#adminText").value})});
- const d=await r.json();alert(d.ok?"✅ Announcement published!":"❌ "+(d.error||"failed"));if(d.ok)$("#adminText").value=""}catch(e){alert("Error: "+e.message)}});
+ const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"announce",pass:$("#adminPass").value||adminPass,text:$("#adminText").value})});
+ const d=await r.json();
+ if(d.ok){ if($("#adminPass").value){adminPass=$("#adminPass").value;localStorage.setItem("gchat_admin_pass",adminPass);} $("#adminText").value=""; alert("✅ Published!"); loadAnnouncement(); }
+ else alert("❌ "+(d.error||"failed"));
+}catch(e){alert("Error: "+e.message)}});
 $("#btnClearAnn").addEventListener("click",async()=>{try{
- const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"clear",pass:$("#adminPass").value})});
- const d=await r.json();alert(d.ok?"✅ Cleared":"❌ "+(d.error||"failed"))}catch(e){alert("Error: "+e.message)}});
+ const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"clear",pass:$("#adminPass").value||adminPass})});
+ const d=await r.json();alert(d.ok?"✅ Cleared":"❌ "+(d.error||"failed"));if(d.ok)loadAnnouncement();
+}catch(e){alert("Error: "+e.message)}});
 
-/* test email */
 $("#btnTest").addEventListener("click",async()=>{try{const r=await fetch("/api/market-email?force=true");const d=await r.json();
  alert(d.ok?"✅ Test email sent":"❌ "+(d.error||d.message))}catch(e){alert("Error: "+e.message)}});
 
 loadChart();loadAnnouncement();
-bubble("Welcome to G-Chat v3 🎉\n\n💬 Signals • 📈 Charts • 🌍 Market\n📜 History — auto win/loss tracking\n⚙️ Admin — announcements");
+bubble("Welcome to G-Chat v4 🎉\n\n🌍 Market now has ON/OFF switches per pair.\n⚙️ Admin → Unlock This Phone once to control switches.");
 </script>
 </body>
 </html>
