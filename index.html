@@ -57,6 +57,7 @@ select{width:100%;height:46px;border:none;border-radius:12px;padding:0 12px;font
 .dot.good{background:var(--green)}.dot.wait{background:#c3ccd2}.dot.err{background:var(--red)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .chip{font-size:11px;background:#f1f5f4;border-radius:999px;padding:4px 8px;color:var(--subtle);font-weight:600}
+.chip.hot{background:#fff1ec;color:#d33}
 .switch{position:relative;width:46px;height:27px;flex:0 0 auto}
 .switch input{display:none}
 .slider{position:absolute;inset:0;background:#cfd8dc;border-radius:999px;transition:.2s}
@@ -85,7 +86,7 @@ nav button.active{color:var(--header1);font-weight:700}
 </head>
 <body>
 <div class="app">
-<header><div class="avatar">G</div><div><h1>G-Chat IQ Signals</h1><p>online • engine v4</p></div></header>
+<header><div class="avatar">G</div><div><h1>G-Chat IQ Signals</h1><p>online • MTF engine v5</p></div></header>
 <main>
   <section class="screen active" id="tab-signals">
     <div class="banner" id="announceBar" style="display:none"></div>
@@ -95,10 +96,10 @@ nav button.active{color:var(--header1);font-weight:700}
 
   <section class="screen" id="tab-chart">
     <div class="chart-controls">
-      <select id="pairSelect">
-        <optgroup label="Crypto">          <option value="BINANCE:BTCUSDT">BTC/USD</option><option value="BINANCE:BNBUSDT">BNB/USD</option>
-          <option value="BINANCE:ETHUSDT">ETH/USD</option><option value="BINANCE:SOLUSDT">SOL/USD</option>
-          <option value="BINANCE:XRPUSDT">XRP/USD</option>
+      <select id="pairSelect">        <optgroup label="Crypto">
+          <option value="BINANCE:BTCUSDT">BTC/USD</option><option value="BINANCE:ETHUSDT">ETH/USD</option>
+          <option value="BINANCE:SOLUSDT">SOL/USD</option><option value="BINANCE:XRPUSDT">XRP/USD</option>
+          <option value="BINANCE:DOGEUSDT">DOGE/USD</option><option value="BINANCE:BNBUSDT">BNB/USD</option>
         </optgroup>
         <optgroup label="Forex">
           <option value="FX:EURUSD">EUR/USD</option><option value="FX:GBPUSD">GBP/USD</option>
@@ -144,8 +145,8 @@ nav button.active{color:var(--header1);font-weight:700}
         <button class="btn primary" id="btnAnnounce" style="margin-top:8px">Publish</button>
         <button class="btn ghost" id="btnClearAnn">Clear</button>
       </div>
-      <div class="scard"><h3>🛡️ Risk Rules</h3><p>✅ 0.25–0.5% risk per trade. ✅ Max 3 martingale levels. ✅ Stop after 3 losing sequences. ✅ No news trading.</p></div>
-      <div class="scard"><h3>⚠️ Disclaimer</h3><p>Educational project. Not financial advice. Trading is high risk.</p></div>    </div>
+      <div class="scard"><h3>🧠 Engine Rules (v5)</h3><p>1H direction → 15M structure → 5M pullback setup → 1M volume trigger. Signals only when all align. 🔥 = today’s movers (volume + volatility).</p></div>      <div class="scard"><h3>⚠️ Disclaimer</h3><p>Educational project. Not financial advice. Trading is high risk.</p></div>
+    </div>
   </section>
 </main>
 <nav>
@@ -161,17 +162,19 @@ const $=s=>document.querySelector(s);const chat=$("#chat");
 let adminPass=localStorage.getItem("gchat_admin_pass")||"";
 const fmtT=d=>d.toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
 const fmtDT=iso=>new Date(iso).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+const arr=v=>v==="UP"?"⬆":v==="DOWN"?"⬇":"–";
 function bubble(t,c){const b=document.createElement("div");b.className="bubble "+c;b.textContent=t;chat.appendChild(b);chat.scrollTop=chat.scrollHeight}
 function card(h){const c=document.createElement("div");c.className="card";c.innerHTML=h;chat.appendChild(c);chat.scrollTop=chat.scrollHeight}
 const confBar=v=>`<div class="conf"><div class="bar"><i style="width:${v}%"></i></div><span>${v}%</span></div>`;
 const dirB=d=>d==="BUY"?`<span class="badge buy">🟢 BUY</span>`:d==="SELL"?`<span class="badge sell">🔴 SELL</span>`:`<span class="badge wait">⚪ WAIT</span>`;
-function signalCard(a){const e=new Date(a.entryTime||Date.now());
+function signalCard(a){const e=new Date(a.entryTime||Date.now());const m=a.mtf||{};
+ const mtfLine=m.h1&&m.h1!=="-"?`<div class="meta">🧭 1H ${arr(m.h1)} • 15M ${arr(m.m15)} • 5M ${m.m5==="OK"?"✔":"–"} • 1M ${m.m1==="OK"?"⚡":"–"}</div>`:"";
  return `<div class="sig-top">🚨 TRADE NOW ${dirB(a.direction)}</div><div class="sig-pair">📊 ${a.symbol}</div>${confBar(a.confidence)}
- <div class="meta">⏱ 5-min expiry • 🕰 Entry: ${fmtT(e)}</div>
+ <div class="meta">⏱ 5-min expiry • 🕰 Entry: ${fmtT(e)}</div>${mtfLine}
  <div class="mart">📊 Martingale<br>• L1 → ${fmtT(new Date(e.getTime()+300000))}<br>• L2 → ${fmtT(new Date(e.getTime()+600000))}<br>• L3 → ${fmtT(new Date(e.getTime()+900000))}</div>
  <div class="src">🤖 ${a.source||"feed"}</div>`}
 function noSignalCard(assets){const chips=(assets||[]).map(a=>`<span class="chip">${a.symbol.split("/")[0]} ${a.direction==="BUY"?"🟢":a.direction==="SELL"?"🔴":""} ${a.confidence}%</span>`).join("");
- return `<div class="sig-top">😴 No high-quality setup right now</div><p class="meta" style="margin-top:6px">Engine scanned — conditions not clean. Silence protects your account.</p><div class="chips" style="margin-top:10px">${chips}</div>`}
+ return `<div class="sig-top">😴 No high-quality setup right now</div><p class="meta" style="margin-top:6px">MTF engine scanned — alignment not clean. Silence protects your account.</p><div class="chips" style="margin-top:10px">${chips}</div>`}
 
 document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>{
  document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));
@@ -191,44 +194,48 @@ function loadChart(){const sym=$("#pairSelect").value;const box=$("#tvchart");bo
  s.innerHTML=JSON.stringify({autosize:true,symbol:sym,interval:curInt,timezone:"Etc/UTC",theme:"light",style:"1",locale:"en",allow_symbol_change:false,calendar:false,support_host:"https://www.tradingview.com"});
  w.appendChild(s);box.appendChild(w)}
 $("#pairSelect").addEventListener("change",loadChart);
-document.querySelectorAll(".chip-btn").forEach(b=>b.addEventListener("click",()=>{
- document.querySelectorAll(".chip-btn").forEach(x=>x.classList.remove("active"));
+document.querySelectorAll(".chip-btn").forEach(b=>b.addEventListener("click",()=>{ document.querySelectorAll(".chip-btn").forEach(x=>x.classList.remove("active"));
  b.classList.add("active");curInt=b.dataset.interval;loadChart()}));
-$("#btnCheck").addEventListener("click",async()=>{const btn=$("#btnCheck");btn.disabled=true;btn.textContent="⏳ Scanning…";
- bubble("Scanning all enabled pairs…","out");
+
+$("#btnCheck").addEventListener("click",async()=>{const btn=$("#btnCheck");btn.disabled=true;btn.textContent="⏳ Scanning MTF…";
+ bubble("Scanning 1H→15M→5M→1M on enabled pairs…","out");
  try{const r=await fetch("/api/market-email");const d=await r.json();
   if(d.emailed&&d.goodAssets&&d.goodAssets.length){d.goodAssets.forEach(a=>card(signalCard(a)));bubble("✅ Signal recorded + email sent.")}
-  else{card(noSignalCard(d.assets));bubble("No email — market not clean yet.")}
+  else{card(noSignalCard(d.assets));bubble("No email — alignment not clean yet.")}
  }catch(e){bubble("Error: "+e.message,"in")}
  btn.disabled=false;btn.textContent="🔔 Check Market + Email Me"});
 
-/* ---- MARKET LIST WITH SWITCHES ---- */
 async function loadMarket(){$("#marketList").innerHTML=`<div class="mrow-card">Scanning…</div>`;
  try{
-  const [sr, mr] = await Promise.all([fetch("/api/data?type=settings"), fetch("/api/market-email?check=true")]);
-  const sd = await sr.json(); const md = await mr.json();
-  const enabled = sd.enabled || {};
+  const [sr, mr]=await Promise.all([fetch("/api/data?type=settings"), fetch("/api/market-email?check=true")]);
+  const sd=await sr.json(); const md=await mr.json();
+  const enabled=sd.enabled||{};
   $("#marketTime").textContent=fmtT(new Date());
-  $("#marketList").innerHTML=(md.assets||[]).map(a=>{
-    const on = enabled[a.symbol] !== false;
-    return `<div class="mrow-card ${on?"":"off"}" data-sym="${a.symbol}">
+  const assets=(md.assets||[]).slice().sort((a,b)=>(b.score||0)-(a.score||0));
+  $("#marketList").innerHTML=assets.map((a,i)=>{
+    const on=enabled[a.symbol]!==false; const m=a.mtf||{};
+    return `<div class="mrow-card ${on?"":"off"}">
       <label class="switch"><input type="checkbox" data-sym="${a.symbol}" ${on?"checked":""}><span class="slider"></span></label>
       <div class="minfo">
-        <div class="mrow"><b>${a.symbol}</b><span class="dot ${a.error?"err":a.good?"good":"wait"}"></span></div>
-        <div class="chips">${dirB(a.direction)}<span class="chip">Conf ${a.confidence||0}%</span><span class="chip">RSI ${a.rsi??"-"}</span><span class="chip">${a.source||"feed"}</span></div>
+        <div class="mrow"><b>${i<3&&(a.score||0)>0?"🔥":""} ${a.symbol}</b><span class="dot ${a.error?"err":a.good?"good":"wait"}"></span></div>
+        <div class="chips">${dirB(a.direction)}<span class="chip">Conf ${a.confidence||0}%</span>
+        <span class="chip">1H ${arr(m.h1)}</span><span class="chip">15M ${arr(m.m15)}</span>
+        <span class="chip">5M ${m.m5==="OK"?"✔":"–"}</span><span class="chip">1M ${m.m1==="OK"?"⚡":"–"}</span>
+        ${a.volUp?'<span class="chip hot">Vol↑</span>':""}${a.atrUp?'<span class="chip hot">ATR↑</span>':""}
+        <span class="chip">${a.source||"feed"}</span></div>
       </div>
     </div>`;
   }).join("");
   document.querySelectorAll("#marketList input[type=checkbox]").forEach(cb=>{
-    cb.addEventListener("change", async ()=>{
-      const sym=cb.dataset.sym; const want=cb.checked;
-      if(!adminPass){ cb.checked=!want; alert("🔒 Unlock first: Admin tab → enter passcode → Unlock This Phone."); return; }
+    cb.addEventListener("change",async()=>{
+      const sym=cb.dataset.sym;const want=cb.checked;
+      if(!adminPass){cb.checked=!want;alert("🔒 Unlock first: Admin tab → passcode → Unlock This Phone.");return}
       try{
         const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"toggle",pass:adminPass,symbol:sym,enabled:want})});
         const d=await r.json();
-        if(!d.ok){ cb.checked=!want; alert("❌ "+(d.error||"failed")); return; }
+        if(!d.ok){cb.checked=!want;alert("❌ "+(d.error||"failed"));return}
         cb.closest(".mrow-card").classList.toggle("off",!want);
-      }catch(e){ cb.checked=!want; alert("Error: "+e.message); }
+      }catch(e){cb.checked=!want;alert("Error: "+e.message)}
     });
   });
  }catch(e){$("#marketList").innerHTML=`<div class="mrow-card">Error: ${e.message}</div>`}}
@@ -236,27 +243,29 @@ $("#btnRefresh").addEventListener("click",loadMarket);
 
 async function loadHistory(){try{const r=await fetch("/api/data?type=history");const d=await r.json();
  const s=d.stats||{};$("#stWin").textContent=(s.winRate||0)+"%";$("#stW").textContent=s.wins||0;$("#stL").textContent=s.losses||0;$("#stP").textContent=s.pending||0;
- $("#histList").innerHTML=(d.signals||[]).map(x=>`<div class="hitem"><div class="hrow"><b>${x.symbol}</b><span class="st ${x.status}">${x.status.toUpperCase()}</span></div>
- <div class="chips">${dirB(x.direction)}<span class="chip">Conf ${x.confidence}%</span></div>
+ $("#histList").innerHTML=(d.signals||[]).map(x=>{const m=x.mtf||{};  const mtfLine=m.h1&&m.h1!=="-"?`<div class="meta">🧭 1H ${arr(m.h1)} • 15M ${arr(m.m15)} • 5M ${m.m5==="OK"?"✔":"–"} • 1M ${m.m1==="OK"?"⚡":"–"}</div>`:"";
+  return `<div class="hitem"><div class="hrow"><b>${x.symbol}</b><span class="st ${x.status}">${x.status.toUpperCase()}</span></div>
+ <div class="chips">${dirB(x.direction)}<span class="chip">Conf ${x.confidence}%</span></div>${mtfLine}
  <div class="meta">🕰 Entry: ${fmtDT(x.entryTime)} → ⌛ Expiry: ${fmtDT(x.expiryTime)}</div>
- <div class="meta">💵 Entry: ${x.entryPrice??"-"} → 🏁 Expiry: ${x.expiryPrice??"-"}</div></div>`).join("")||`<div class="hitem">No signals recorded yet.</div>`}
+ <div class="meta">💵 Entry: ${x.entryPrice??"-"} → 🏁 Expiry: ${x.expiryPrice??"-"}</div></div>`}).join("")||`<div class="hitem">No signals recorded yet.</div>`}
  catch(e){$("#histList").innerHTML=`<div class="hitem">Error: ${e.message}</div>`}}
 
 async function loadAnnouncement(){try{const r=await fetch("/api/data?type=announcements");const d=await r.json();
- const a=(d.announcements||[])[0];const bar=$("#announceBar"); if(a){bar.style.display="block";bar.innerHTML=`📣 <b>Announcement:</b> ${a.text}`}else bar.style.display="none"}catch(e){}}
+ const a=(d.announcements||[])[0];const bar=$("#announceBar");
+ if(a){bar.style.display="block";bar.innerHTML=`📣 <b>Announcement:</b> ${a.text}`}else bar.style.display="none"}catch(e){}}
 
 $("#btnUnlock").addEventListener("click",async()=>{try{
  const pass=$("#adminPass").value;
  const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"verify",pass})});
  const d=await r.json();
- if(d.ok){ adminPass=pass; localStorage.setItem("gchat_admin_pass",pass); alert("✅ Phone unlocked. You can now flip pair switches & post announcements."); }
+ if(d.ok){adminPass=pass;localStorage.setItem("gchat_admin_pass",pass);alert("✅ Phone unlocked.")}
  else alert("❌ Wrong passcode");
 }catch(e){alert("Error: "+e.message)}});
 
 $("#btnAnnounce").addEventListener("click",async()=>{try{
  const r=await fetch("/api/data",{method:"POST",body:JSON.stringify({action:"announce",pass:$("#adminPass").value||adminPass,text:$("#adminText").value})});
  const d=await r.json();
- if(d.ok){ if($("#adminPass").value){adminPass=$("#adminPass").value;localStorage.setItem("gchat_admin_pass",adminPass);} $("#adminText").value=""; alert("✅ Published!"); loadAnnouncement(); }
+ if(d.ok){if($("#adminPass").value){adminPass=$("#adminPass").value;localStorage.setItem("gchat_admin_pass",adminPass)}$("#adminText").value="";alert("✅ Published!");loadAnnouncement()}
  else alert("❌ "+(d.error||"failed"));
 }catch(e){alert("Error: "+e.message)}});
 $("#btnClearAnn").addEventListener("click",async()=>{try{
@@ -268,7 +277,4 @@ $("#btnTest").addEventListener("click",async()=>{try{const r=await fetch("/api/m
  alert(d.ok?"✅ Test email sent":"❌ "+(d.error||d.message))}catch(e){alert("Error: "+e.message)}});
 
 loadChart();loadAnnouncement();
-bubble("Welcome to G-Chat v4 🎉\n\n🌍 Market now has ON/OFF switches per pair.\n⚙️ Admin → Unlock This Phone once to control switches.");
-</script>
-</body>
-</html>
+bubble("Welcome to MTF engine v5 🎉\n\n🧭 1H → 15M → 5M → 1M al
